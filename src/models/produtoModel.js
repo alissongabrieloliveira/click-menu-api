@@ -24,7 +24,33 @@ async function inserirProduto(produto) {
   return result.rows[0];
 }
 
+// Atualiza dados de um produto
+async function atualizarProduto(id, dados) {
+  const { nome, descricao, preco, imagem_url, categoria_id } = dados;
+
+  const result = await db.query(
+    `UPDATE produtos
+     SET nome = $1,
+         descricao = $2,
+         preco = $3,
+         imagem_url = $4,
+         categoria_id = $5
+     WHERE id = $6
+     RETURNING *`,
+    [nome, descricao, preco, imagem_url, categoria_id, id]
+  );
+
+  return result.rows[0];
+}
+
+// Exclui um produto
+async function excluirProduto(id) {
+  await db.query("DELETE FROM produtos WHERE id = $1", [id]);
+}
+
 module.exports = {
   listarProdutos,
   inserirProduto,
+  atualizarProduto,
+  excluirProduto,
 };

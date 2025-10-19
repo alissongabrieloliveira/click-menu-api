@@ -36,7 +36,53 @@ async function postProduto(req, res) {
   }
 }
 
+// PUT atualiza um produto
+async function putProduto(req, res) {
+  const { id } = req.params;
+  const { nome, descricao, preco, imagem_url, categoria_id } = req.body;
+
+  if (!nome || !preco || !categoria_id) {
+    return res
+      .status(400)
+      .json({ erro: "Nome, preço e categoria_id são obrigatórios" });
+  }
+
+  try {
+    const produtoAtualizado = await Produto.atualizarProduto(id, {
+      nome,
+      descricao,
+      preco,
+      imagem_url,
+      categoria_id,
+    });
+
+    if (!produtoAtualizado) {
+      return res.status(404).json({ erro: "Produto não encontrado" });
+    }
+
+    res.json(produtoAtualizado);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ erro: "Erro ao atualizar produto" });
+  }
+}
+
+// DELETE exclui um produto
+async function deleteProduto(req, res) {
+  const { id } = req.params;
+
+  try {
+    await Produto.excluirProduto(id);
+    res.status(204).send(); // No Content
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ erro: "Erro ao excluir produto" });
+  }
+}
+
 module.exports = {
   getProdutos,
   postProduto,
+  putProduto,
+  deleteProduto,
 };
