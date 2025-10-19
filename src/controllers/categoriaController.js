@@ -25,7 +25,41 @@ async function postCategoria(req, res) {
   }
 }
 
+// PUT atualiza uma categoria
+async function putCategoria(req, res) {
+  const { id } = req.params;
+  const { nome } = req.body;
+
+  if (!nome) return res.status(400).json({ erro: "Nome é obrigatório" });
+
+  try {
+    const categoriaAtualizada = await Categoria.atualizarCategoria(id, nome);
+    if (!categoriaAtualizada) {
+      return res.status(404).json({ erro: "Categoria não encontrada" });
+    }
+    res.json(categoriaAtualizada);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ erro: "Erro ao atualizar categoria" });
+  }
+}
+
+// DELETE exclui uma categoria
+async function deleteCategoria(req, res) {
+  const { id } = req.params;
+
+  try {
+    await Categoria.excluirCategoria(id);
+    res.status(204).send(); // No Content
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ erro: "Erro ao excluir categoria" });
+  }
+}
+
 module.exports = {
   getCategorias,
   postCategoria,
+  putCategoria,
+  deleteCategoria,
 };

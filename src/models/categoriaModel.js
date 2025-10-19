@@ -15,7 +15,23 @@ async function inserirCategoria(nome) {
   return result.rows[0];
 }
 
+// Atualiza dados da categoria
+async function atualizarCategoria(id, nome) {
+  const result = await db.query(
+    "UPDATE categorias SET nome = $1 WHERE id = $2 RETURNING *",
+    [nome, id]
+  );
+  return result.rows[0];
+}
+
+// Exclui uma categoria
+async function excluirCategoria(id) {
+  await db.query("DELETE FROM categorias WHERE id = $1", [id]);
+}
+
 module.exports = {
   listarCategorias,
   inserirCategoria,
+  atualizarCategoria,
+  excluirCategoria,
 };
