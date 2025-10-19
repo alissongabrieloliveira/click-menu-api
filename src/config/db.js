@@ -9,8 +9,10 @@ const pool = new Pool({
   database: process.env.DB_NAME,
 });
 
-pool.on("connect", () => {
-  console.log("Conectado ao PostgreSQL!");
-});
+// Força uma tentativa de conexão assim que o arquivo é importado
+pool
+  .connect()
+  .then(() => console.log("Conectado ao PostgreSQL !"))
+  .catch((err) => console.error("Erro ao conectar ao PostgreSQL:", err));
 
 module.exports = pool;
