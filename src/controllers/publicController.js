@@ -1,5 +1,7 @@
 const db = require("../config/db");
 const pedidoModel = require("../models/pedidoModel");
+const gerarComprovantePDF = require("../utils/pdfComprovante");
+const path = require("path");
 
 // GET rota pública /cardapio
 async function getCardapio(req, res) {
@@ -155,14 +157,25 @@ async function finalizarPedido(req, res) {
       return soma + item.preco * item.quantidade;
     }, 0);
 
-    res.json({
-      mensagem: "Pedido finalizado com sucesso",
-      pedido: {
+    // Gera comprovante PDF
+    gerarComprovantePDF(
+      {
         ...pedido,
         total: Number(total.toFixed(2)),
         itens,
       },
-    });
+      (pdfUrl) => {
+        res.json({
+          mensagem: "Pedido finalizado com sucesso",
+          pedido: {
+            ...pedido,
+            total: Number(total.toFixed(2)),
+            comprovante: pdfUrl,
+            itens,
+          },
+        });
+      }
+    );
   } catch (err) {
     console.error(err);
     res.status(500).json({ erro: "Erro ao finalizar pedido" });
