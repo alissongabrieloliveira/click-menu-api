@@ -117,8 +117,61 @@ async function postPedidoPublico(req, res) {
   }
 }
 
+// PATCH atualiza o status do pedido para finalizado
+async function finalizarPedido(req, res) {
+  const { id } = req.params;
+
+  try {
+    const pedidoResult = await db.query(
+      `UPDATE pedidos
+       SET status = 'finalizado'
+       WHERE id = $1
+       RETURNING id, mesa, status, criado_em`,
+      [id]
+    );
+
+    if (pedidoResult.rows.length === 0) {
+      return res.status(404).json({ erro: "Pedido não encontrado" });
+    }
+
+    const pedido = pedidoResult.rows[0];
+
+    const itensResult = await db.query(
+      `
+      SELECT 
+        ip.quantidade,
+        p.nome AS produto_nome,
+        p.preco
+      FROM itens_pedido ip
+      JOIN produtos p ON p.id = ip.produto_id
+      WHERE ip.pedido_id = $1
+    `,
+      [id]
+    );
+
+    const itens = itensResult.rows;
+
+    const total = itens.reduce((soma, item) => {
+      return soma + item.preco * item.quantidade;
+    }, 0);
+
+    res.json({
+      mensagem: "Pedido finalizado com sucesso",
+      pedido: {
+        ...pedido,
+        total: Number(total.toFixed(2)),
+        itens,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ erro: "Erro ao finalizar pedido" });
+  }
+}
+
 module.exports = {
   getCardapio,
   getPedidoDetalhado,
   postPedidoPublico,
+  finalizarPedido,
 };
