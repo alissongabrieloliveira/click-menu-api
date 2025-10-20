@@ -32,6 +32,16 @@ async function criarPedido(mesa, itens) {
   }
 }
 
+// Atualizar o status do pedido
+async function atualizarStatusPedido(id, novoStatus) {
+  const result = await db.query(
+    "UPDATE pedidos SET status = $1 WHERE id = $2 RETURNING *",
+    [novoStatus, id]
+  );
+  return result.rows[0];
+}
+
 module.exports = {
   criarPedido,
+  atualizarStatusPedido,
 };
