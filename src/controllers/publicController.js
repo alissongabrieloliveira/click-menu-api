@@ -81,7 +81,14 @@ async function getPedidoDetalhado(req, res) {
       [id]
     );
 
-    pedido.itens = itensResult.rows;
+    const itens = itensResult.rows;
+
+    const total = itens.reduce((soma, item) => {
+      return soma + item.preco * item.quantidade;
+    }, 0);
+
+    pedido.itens = itens;
+    pedido.total = Number(total.toFixed(2)); // duas casas decimais
 
     res.json(pedido);
   } catch (err) {
