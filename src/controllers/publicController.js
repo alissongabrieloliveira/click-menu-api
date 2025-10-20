@@ -1,4 +1,5 @@
 const db = require("../config/db");
+const pedidoModel = require("../models/pedidoModel");
 
 // GET rota pública /cardapio
 async function getCardapio(req, res) {
@@ -89,7 +90,28 @@ async function getPedidoDetalhado(req, res) {
   }
 }
 
+// POST rota publica /pedido direto do cliente sem painel
+async function postPedidoPublico(req, res) {
+  const { mesa, itens } = req.body;
+
+  if (!mesa || !Array.isArray(itens) || itens.length === 0) {
+    return res.status(400).json({ erro: "Mesa e itens são obrigatórios" });
+  }
+
+  try {
+    const novoPedido = await pedidoModel.criarPedido(mesa, itens);
+    res.status(201).json({
+      mensagem: "Pedido criado com sucesso",
+      pedido_id: novoPedido.id,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ erro: "Erro ao criar pedido" });
+  }
+}
+
 module.exports = {
   getCardapio,
   getPedidoDetalhado,
+  postPedidoPublico,
 };
