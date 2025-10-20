@@ -33,9 +33,16 @@ async function listarTodosPedidos(req, res) {
         [pedido.id]
       );
 
+      const itens = itensResult.rows;
+
+      const total = itens.reduce((soma, item) => {
+        return soma + item.preco * item.quantidade;
+      }, 0);
+
       pedidos.push({
         ...pedido,
-        itens: itensResult.rows,
+        itens,
+        total: Number(total.toFixed(2)), // duas casas decimais
       });
     }
 
