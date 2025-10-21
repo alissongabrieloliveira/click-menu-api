@@ -4,5 +4,6 @@ const adminController = require("../controllers/adminController");
 
 router.get("/pedidos", adminController.listarTodosPedidos);
 router.get("/historico", adminController.listarHistoricoPedidos);
+router.get("/historico/exportar", adminController.exportarHistorico);
 
 module.exports = router;
